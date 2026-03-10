@@ -17,6 +17,6 @@ print("Registrando alterações")
 comando2= "git commit -m " + mensagem 
 os.system(comando2)
 
-print("Enviando projeoto ao github")
+print("Enviando projeto ao github")
 comando3= "git push"
 os.system(comando3)
