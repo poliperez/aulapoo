@@ -4,7 +4,14 @@ import arcade
 LARGURA = 800
 ALTURA = 600
 TITULO = "Coletor de Moedas"
+GRAVIDADE = 0.5
 
+
+class Bloco(arcade.Sprite):
+    def __init__(self, x: float, y: float):
+       super().__init__(scale=0.5)
+       self.center_x = x
+       self.center_y = y
 
 class Player(arcade.Sprite):
     def __init__(self):
@@ -54,6 +61,13 @@ class Moeda(arcade.Sprite):
             self.change_y = 0
         elif self.center_y < 0:
             self.change_y = 0
+
+        self.engine_fisica = arcade.PhysicsEnginePlatformer(
+            player_sprite=self.personagem,
+            walls=self.sprite_blocos>
+            gravity_constant= GRAVIDADE
+
+         )
 
 class TelaSobre(arcade.View):
     def __init__(self):
@@ -181,6 +195,7 @@ class TelaJogo(arcade.View):
         self.obj_list.draw()
 
     def on_update(self, delta_time):
+        self.engine_fisica.update()
         self.obj_list.update(delta_time)
 
     def on_key_press(self, key, modifiers):
