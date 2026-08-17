@@ -288,7 +288,7 @@ class TelaJogo(arcade.View):
         self.clear()
         self.obj_list.draw()
 
-        draw_text = f"Moedas restantes: {self.score}"  # Subtrai o jogador e o inimigo especial
+        draw_text = f"Pontuação: {self.score}"  # Subtrai o jogador e o inimigo especial
         arcade.draw_text(draw_text, 10, ALTURA - 30, arcade.color.WHITE, 16)
 
     def on_update(self, delta_time):
