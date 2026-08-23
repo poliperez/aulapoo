@@ -1,4 +1,4 @@
-import arcade #Rodar   py -3.13 .\jogos.py
+import arcade #Rodar  py -3.13 .\jogos.py 
 import random
 
 # Configurações da janela
