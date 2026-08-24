@@ -82,6 +82,16 @@ class TelaInicial(arcade.View):
          self.window.show_view(tela_jogo) # Encaixa ela na janela ativa
         elif key == arcade.key.ESCAPE:
             arcade.close_window()
+     def executar():
+    # 1. Cria a estrutura da janela física usando nossas constantes
+      janela = arcade.Window(LARGURA, ALTURA, TITULO)
+    # 2. Instancia a tela de menu inicial
+      menu_inicial = TelaInicial()
+    # 3. Alimenta a janela com o menu e roda o loop do jogo
+      janela.show_view(menu_inicial)
+      arcade.run()
+     if __name__ == "__main__":
+       executar()
 
 class TelaJogo(arcade.View):
     def __init__(self):
