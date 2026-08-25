@@ -26,6 +26,7 @@ class Player(arcade.Sprite):
     def update(self, delta_time):
         if self.change_x > 0:
             self.texture = self.textura_direita
+
         elif self.change_x < 0:
             self.texture = self.textura_esquerda
 
@@ -51,6 +52,7 @@ class MoedaEspecial(arcade.Sprite):
         self.change_y = 100
 
     def update(self, delta_time):
+
         self.center_x += self.change_x * delta_time
         self.center_y += self.change_y * delta_time
 
@@ -82,6 +84,7 @@ class Inimigo(arcade.Sprite):
         self.change_x = 150
 
     def update(self, delta_time):
+
         self.center_x += self.change_x * delta_time
 
         if self.right >= LARGURA:
@@ -105,6 +108,7 @@ class InimigoEspecial(arcade.Sprite):
         self.change_x = 0
 
     def perseguir_jogador(self, jogador):
+
         if jogador.center_x > self.center_x:
             self.change_x = self.velocidade
 
@@ -117,7 +121,7 @@ class InimigoEspecial(arcade.Sprite):
 
 class Bloco(arcade.Sprite):
 
-    def __init__(self, escala=0.35):
+    def __init__(self, escala=0.25):
         super().__init__(
             "bloco.png",
             scale=escala
@@ -136,6 +140,7 @@ class TelaJogo(arcade.View):
         self.pontuacao = 0
         self.tempo = 0
         self.sofreu_dano = False
+
         self.alerta = ""
         self.tempo_alerta = 0
         self.tempo_invulnerabilidade = 0
@@ -148,14 +153,16 @@ class TelaJogo(arcade.View):
         self.sprite_inimigos_especiais = arcade.SpriteList()
 
         self.jogador = Player()
-        self.jogador.center_x = 400
-        self.jogador.center_y = 100
+
+        self.jogador.center_x = 200
+        self.jogador.center_y = 500
 
         self.sprite_jogador.append(
             self.jogador
         )
 
         for x in range(80, LARGURA, 160):
+
             bloco = Bloco(
                 escala=0.35
             )
@@ -175,8 +182,9 @@ class TelaJogo(arcade.View):
         ]
 
         for x, y in plataformas:
+
             bloco = Bloco(
-                escala=0.28
+                escala=0.2
             )
 
             bloco.center_x = x
@@ -193,23 +201,41 @@ class TelaJogo(arcade.View):
         )
 
         regioes_moedas = [
-            (70, 730, 90, 130),
-            (70, 170, 165, 225),
+            (220, 730, 90, 130),
+            (70, 170, 170, 225),
             (280, 380, 245, 305),
             (500, 600, 325, 385),
             (650, 750, 405, 465)
         ]
 
         for x_min, x_max, y_min, y_max in regioes_moedas:
-            moedas_criadas = 0
 
-            while moedas_criadas < 5:
-                x = random.randint(x_min, x_max)
-                y = random.randint(y_min, y_max)
+            moedas_criadas = 0
+            tentativas = 0
+
+            while moedas_criadas < 5 and tentativas < 500:
+
+                tentativas += 1
+
+                x = random.randint(
+                    x_min,
+                    x_max
+                )
+
+                y = random.randint(
+                    y_min,
+                    y_max
+                )
+
+                moeda = Moeda()
+
+                moeda.center_x = x
+                moeda.center_y = y
 
                 posicao_valida = True
 
                 for moeda_existente in self.sprite_moedas:
+
                     distancia_x = abs(
                         x - moeda_existente.center_x
                     )
@@ -218,15 +244,45 @@ class TelaJogo(arcade.View):
                         y - moeda_existente.center_y
                     )
 
-                    if distancia_x < 35 and distancia_y < 35:
+                    if (
+                        distancia_x < 35
+                        and distancia_y < 35
+                    ):
                         posicao_valida = False
                         break
 
                 if posicao_valida:
-                    moeda = Moeda()
 
-                    moeda.center_x = x
-                    moeda.center_y = y
+                    for bloco in self.sprite_blocos:
+
+                        distancia_x = abs(
+                            moeda.center_x
+                            - bloco.center_x
+                        )
+
+                        distancia_y = abs(
+                            moeda.center_y
+                            - bloco.center_y
+                        )
+
+                        limite_x = (
+                            bloco.width / 2
+                            + moeda.width / 2
+                        )
+
+                        limite_y = (
+                            bloco.height / 2
+                            + moeda.height / 2
+                        )
+
+                        if (
+                            distancia_x < limite_x
+                            and distancia_y < limite_y
+                        ):
+                            posicao_valida = False
+                            break
+
+                if posicao_valida:
 
                     self.sprite_moedas.append(
                         moeda
@@ -270,6 +326,7 @@ class TelaJogo(arcade.View):
         )
 
     def on_draw(self):
+
         self.clear()
 
         self.sprite_jogador.draw()
@@ -296,6 +353,7 @@ class TelaJogo(arcade.View):
         )
 
         if self.alerta:
+
             arcade.draw_text(
                 self.alerta,
                 LARGURA / 2,
@@ -306,6 +364,7 @@ class TelaJogo(arcade.View):
             )
 
     def on_update(self, delta_time):
+
         self.tempo += delta_time
 
         self.sprite_jogador.update(
@@ -324,6 +383,7 @@ class TelaJogo(arcade.View):
             self.jogador.top = ALTURA
 
         if self.jogador.bottom < 0:
+
             self.jogador.bottom = 0
             self.jogador.change_y = 0
 
@@ -342,12 +402,15 @@ class TelaJogo(arcade.View):
         self.physics_engine_inimigo_especial.update()
 
         if self.tempo_invulnerabilidade > 0:
+
             self.tempo_invulnerabilidade -= delta_time
 
         if self.tempo_alerta > 0:
+
             self.tempo_alerta -= delta_time
 
         else:
+
             self.alerta = ""
 
         moedas_colididas = (
@@ -358,7 +421,9 @@ class TelaJogo(arcade.View):
         )
 
         for moeda in moedas_colididas:
+
             moeda.remove_from_sprite_lists()
+
             self.pontuacao += 1
 
         moedas_especiais_colididas = (
@@ -369,7 +434,9 @@ class TelaJogo(arcade.View):
         )
 
         for moeda in moedas_especiais_colididas:
+
             moeda.remove_from_sprite_lists()
+
             self.pontuacao += 5
 
         if self.tempo_invulnerabilidade <= 0:
@@ -382,6 +449,7 @@ class TelaJogo(arcade.View):
             )
 
             for inimigo in inimigos_colididos:
+
                 self.pontuacao -= 1
                 self.sofreu_dano = True
 
@@ -396,9 +464,11 @@ class TelaJogo(arcade.View):
                     self.jogador.center_x
                     < inimigo.center_x
                 ):
+
                     self.jogador.change_x = -8
 
                 else:
+
                     self.jogador.change_x = 8
 
         inimigos_especiais_colididos = (
@@ -414,6 +484,7 @@ class TelaJogo(arcade.View):
         ):
 
             for inimigo in inimigos_especiais_colididos:
+
                 self.pontuacao -= 1
                 self.sofreu_dano = True
 
@@ -427,6 +498,7 @@ class TelaJogo(arcade.View):
                 nova_posicao_encontrada = False
 
                 while not nova_posicao_encontrada:
+
                     novo_x = random.randint(
                         50,
                         750
@@ -438,6 +510,7 @@ class TelaJogo(arcade.View):
                     )
 
                     if distancia > 150:
+
                         nova_posicao_encontrada = True
 
                 inimigo.center_x = novo_x
@@ -448,6 +521,7 @@ class TelaJogo(arcade.View):
             len(self.sprite_moedas) == 0
             and len(self.sprite_moeda_especial) == 0
         ):
+
             tela_game_over = TelaGameOver(
                 self.pontuacao,
                 self.tempo,
@@ -464,22 +538,27 @@ class TelaJogo(arcade.View):
             key == arcade.key.RIGHT
             or key == arcade.key.D
         ):
+
             self.jogador.change_x = 5
 
         elif (
             key == arcade.key.LEFT
             or key == arcade.key.A
         ):
+
             self.jogador.change_x = -5
 
         elif (
             key == arcade.key.UP
             or key == arcade.key.W
         ):
+
             if self.physics_engine.can_jump():
+
                 self.jogador.change_y = 15
 
         elif key == arcade.key.ESCAPE:
+
             self.window.show_view(
                 TelaInicial()
             )
@@ -490,23 +569,27 @@ class TelaJogo(arcade.View):
             key == arcade.key.RIGHT
             or key == arcade.key.D
         ):
+
             self.jogador.change_x = 0
 
         elif (
             key == arcade.key.LEFT
             or key == arcade.key.A
         ):
+
             self.jogador.change_x = 0
 
 
 class TelaSobre(arcade.View):
 
     def __init__(self):
+
         super().__init__()
 
         self.sprite_avatares = arcade.SpriteList()
 
         if os.path.exists("melody.png"):
+
             avatar1 = arcade.Sprite(
                 "melody.png",
                 scale=0.15
@@ -520,6 +603,7 @@ class TelaSobre(arcade.View):
             )
 
     def on_draw(self):
+
         self.clear()
 
         arcade.draw_text(
@@ -584,6 +668,7 @@ class TelaSobre(arcade.View):
             key == arcade.key.ESCAPE
             or key == arcade.key.M
         ):
+
             self.window.show_view(
                 TelaInicial()
             )
@@ -592,9 +677,11 @@ class TelaSobre(arcade.View):
 class TelaInstrucoes(arcade.View):
 
     def __init__(self):
+
         super().__init__()
 
     def on_draw(self):
+
         self.clear()
 
         arcade.draw_text(
@@ -702,6 +789,7 @@ class TelaInstrucoes(arcade.View):
             key == arcade.key.ESCAPE
             or key == arcade.key.M
         ):
+
             self.window.show_view(
                 TelaInicial()
             )
@@ -715,6 +803,7 @@ class TelaGameOver(arcade.View):
         tempo,
         sofreu_dano
     ):
+
         super().__init__()
 
         self.pontuacao = pontuacao
@@ -722,6 +811,7 @@ class TelaGameOver(arcade.View):
         self.sofreu_dano = sofreu_dano
 
     def on_draw(self):
+
         self.clear()
 
         arcade.draw_text(
@@ -737,7 +827,7 @@ class TelaGameOver(arcade.View):
             f"Pontuação final: {self.pontuacao}",
             LARGURA / 2,
             340,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             22,
             anchor_x="center"
         )
@@ -746,12 +836,13 @@ class TelaGameOver(arcade.View):
             f"Tempo total: {self.tempo:.1f} segundos",
             LARGURA / 2,
             290,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
 
         if not self.sofreu_dano:
+
             arcade.draw_text(
                 "PARABÉNS! Você escapou de todos os inimigos perfeitamente!",
                 LARGURA / 2,
@@ -762,6 +853,7 @@ class TelaGameOver(arcade.View):
             )
 
         else:
+
             arcade.draw_text(
                 "Parabéns por terminar o jogo!",
                 LARGURA / 2,
@@ -775,7 +867,7 @@ class TelaGameOver(arcade.View):
             "[M] Voltar ao Menu Principal",
             LARGURA / 2,
             140,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             18,
             anchor_x="center"
         )
@@ -784,7 +876,7 @@ class TelaGameOver(arcade.View):
             "[ESC] Sair do Jogo",
             LARGURA / 2,
             90,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             18,
             anchor_x="center"
         )
@@ -792,20 +884,24 @@ class TelaGameOver(arcade.View):
     def on_key_press(self, key, modifiers):
 
         if key == arcade.key.M:
+
             self.window.show_view(
                 TelaInicial()
             )
 
         elif key == arcade.key.ESCAPE:
+
             arcade.close_window()
 
 
 class TelaInicial(arcade.View):
 
     def __init__(self):
+
         super().__init__()
 
     def on_draw(self):
+
         self.clear()
 
         arcade.draw_text(
@@ -856,6 +952,7 @@ class TelaInicial(arcade.View):
     def on_key_press(self, key, modifiers):
 
         if key == arcade.key.J:
+
             tela_jogo = TelaJogo()
 
             self.window.show_view(
@@ -863,6 +960,7 @@ class TelaInicial(arcade.View):
             )
 
         elif key == arcade.key.I:
+
             tela_instrucoes = TelaInstrucoes()
 
             self.window.show_view(
@@ -870,6 +968,7 @@ class TelaInicial(arcade.View):
             )
 
         elif key == arcade.key.S:
+
             tela_sobre = TelaSobre()
 
             self.window.show_view(
@@ -877,6 +976,7 @@ class TelaInicial(arcade.View):
             )
 
         elif key == arcade.key.ESCAPE:
+
             arcade.close_window()
 
 
