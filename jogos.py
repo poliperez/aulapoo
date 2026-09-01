@@ -29,6 +29,29 @@ class Player(arcade.Sprite):
 
         elif self.change_x < 0:
             self.texture = self.textura_esquerda
+            
+            
+    def state_machine(self):
+        
+        
+        
+        if self.change_y != 0:
+            self.jump()
+            return
+        
+        if self.change_x == 0:
+            self.idle()
+            return
+        
+        #change y == 0 e change x != 0
+        self.walk()
+    
+    def walk(self):
+        pass
+    def jump(self):
+        pass
+    def idle(self):
+        pass
 
 
 class Moeda(arcade.Sprite):
