@@ -1,6 +1,10 @@
 import arcade
 import random
 import os
+    
+
+
+
 
 LARGURA = 800
 ALTURA = 600
