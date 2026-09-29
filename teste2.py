@@ -28,10 +28,12 @@ class Pontuacao(BaseModel):
 
     def __str__(self):
         return f"{self.nome_jogador} - {self.pontos} pts ({self.tempo_partida:.1f}s)"
+
     
     
 banco.connect()
 banco.create_tables([Pontuacao])
+
 
 class Player(arcade.Sprite):
 
@@ -41,44 +43,150 @@ class Player(arcade.Sprite):
             scale=0.1
         )
 
-        self.textura_direita = arcade.load_texture(
+       
+
+        sheet_direita = arcade.load_spritesheet(
+            "Hello_Kitty_spritesheat.png"
+        )
+
+        largura_do_quadro = (
+            sheet_direita.get_width() // 4
+        )
+
+        
+        self.passos_direita = sheet_direita.get_texture_grid(
+            size=(
+                largura_do_quadro,
+                sheet_direita.get_height()
+            ),
+            columns=4,
+            count=4
+        )
+
+        
+        self.passos_esquerda = []
+
+        for frame in self.passos_direita:
+            self.passos_esquerda.append(
+                frame.flip_left_right()
+            )
+
+        
+        
+        self.textura_parado_d = arcade.load_texture(
             "Hello_Kitty.png"
         )
 
-        self.textura_esquerda = arcade.load_texture(
+        
+        self.textura_parado_e = arcade.load_texture(
             "Hello_Kitty_esp.png"
         )
 
-    def update(self, delta_time):
+        
+        self.textura_pulo_d = arcade.load_texture(
+            "Hello_Kitty.png"
+        )
+
+        
+        self.textura_pulo_e = arcade.load_texture(
+            "Hello_Kitty_esp.png"
+        )
+
+        
+        self.virado_para = "DIREITA"
+
+        
+        self.quadro_atual = 0
+
+       
+        self.tempo_animacao = 0.0
+
+   
+    def update(self, delta_time: float = 1 / 60):
+
+        
         if self.change_x > 0:
-            self.texture = self.textura_direita
+            self.virado_para = "DIREITA"
 
         elif self.change_x < 0:
-            self.texture = self.textura_esquerda
+            self.virado_para = "ESQUERDA"
 
-    def state_machine(self):
+        
+        self.state_machine(delta_time)
+
+   
+    def state_machine(self, delta_time):
+
+       
 
         if self.change_y != 0:
             self.jump()
             return
 
+        
         if self.change_x == 0:
             self.idle()
             return
 
-        # change y == 0 e change x != 0
-        self.walk()
+        
+        self.walk(delta_time)
 
-    def walk(self):
-        pass
+    
+    def walk(self, delta_time):
 
+        
+        self.tempo_animacao += delta_time
+
+        
+        if self.tempo_animacao >= 0.1:
+
+            self.tempo_animacao = 0.0
+
+            self.quadro_atual = (
+                self.quadro_atual + 1
+            ) % len(self.passos_direita)
+
+        
+        if self.virado_para == "DIREITA":
+
+            self.texture = (
+                self.passos_direita[
+                    self.quadro_atual
+                ]
+            )
+
+        else:
+
+            self.texture = (
+                self.passos_esquerda[
+                    self.quadro_atual
+                ]
+            )
+
+    
     def jump(self):
-        pass
 
+        if self.virado_para == "DIREITA":
+
+            self.texture = self.textura_pulo_d
+
+        else:
+
+            self.texture = self.textura_pulo_e
+
+   
     def idle(self):
-        pass
 
+        
+        self.quadro_atual = 0
 
+        if self.virado_para == "DIREITA":
+
+            self.texture = self.textura_parado_d
+
+        else:
+
+            self.texture = self.textura_parado_e
 class Moeda(arcade.Sprite):
 
     def __init__(self):
