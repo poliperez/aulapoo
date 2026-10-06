@@ -1,39 +1,11 @@
 import arcade
 import random
 import os
-import datetime
-
-from peewee import *
+from banco import *
 
 LARGURA = 800
 ALTURA = 600
 TITULO = "Coletor de Moedas"
-
-
-banco = SqliteDatabase("ranking.db")
-
-
-class BaseModel(Model):
-    class Meta:
-        database = banco
-
-
-class Pontuacao(BaseModel):
-    nome_jogador = CharField()
-    pontos = IntegerField()
-    tempo_partida = FloatField()
-    data_hora = DateTimeField(
-        default=datetime.datetime.now
-    )
-
-    def __str__(self):
-        return f"{self.nome_jogador} - {self.pontos} pts ({self.tempo_partida:.1f}s)"
-
-    
-    
-banco.connect()
-banco.create_tables([Pontuacao])
-
 
 class Player(arcade.Sprite):
 
@@ -43,24 +15,23 @@ class Player(arcade.Sprite):
             scale=0.1
         )
 
-       
+        textura = arcade.load_texture("Hello_Kitty_spritesheat.png")
+
+        largura_sprite = textura.width // 4
+        altura_sprite = textura.height
 
         sheet_direita = arcade.load_spritesheet(
             "Hello_Kitty_spritesheat.png"
         )
 
-        largura_do_quadro = (
-            sheet_direita.get_width() // 4
-        )
-
         
         self.passos_direita = sheet_direita.get_texture_grid(
             size=(
-                largura_do_quadro,
-                sheet_direita.get_height()
+                largura_sprite,
+                altura_sprite
             ),
-            columns=4,
-            count=4
+            columns=3,
+            count=3
         )
 
         
@@ -233,10 +204,10 @@ class Inimigo(arcade.Sprite):
     def __init__(self):
         super().__init__(
             "kuromi.png",
-            scale=0.3
+            scale=0.2
         )
 
-        self.change_x = 150
+        self.change_x = 100
 
     def update(self, delta_time):
         self.center_x += self.change_x * delta_time
@@ -258,7 +229,7 @@ class InimigoEspecial(arcade.Sprite):
             scale=0.25
         )
 
-        self.velocidade = 100
+        self.velocidade = 50
         self.change_x = 0
 
     def perseguir_jogador(self, jogador):
@@ -270,6 +241,17 @@ class InimigoEspecial(arcade.Sprite):
 
         else:
             self.change_x = 0
+
+        if jogador.center_y > self.center_y:
+            self.change_y = self.velocidade
+        elif jogador.center_y < self.center_y:
+            self.change_y = -self.velocidade
+        else:
+            self.change_y = 0
+
+    def update(self, delta_time):
+        self.center_x += self.change_x * delta_time
+        self.center_y += self.change_y * delta_time
 
 
 class Bloco(arcade.Sprite):
@@ -326,10 +308,10 @@ class TelaJogo(arcade.View):
             )
 
         plataformas = [
-            (120, 250),
-            (330, 220),
-            (550, 320),
-            (700, 240)
+            (100, 380),
+            (300, 250),
+            (500, 180),
+            (700, 320)
         ]
 
         for x, y in plataformas:
@@ -384,7 +366,7 @@ class TelaJogo(arcade.View):
 
         inimigo = Inimigo()
 
-        inimigo.center_x = 200
+        inimigo.center_x = 20
         inimigo.center_y = 100
 
         self.sprite_inimigos.append(
@@ -393,19 +375,11 @@ class TelaJogo(arcade.View):
 
         self.inimigo_especial = InimigoEspecial()
 
-        self.inimigo_especial.center_x = 600
-        self.inimigo_especial.center_y = 100
+        self.inimigo_especial.center_x = 700
+        self.inimigo_especial.center_y = 500
 
         self.sprite_inimigos_especiais.append(
             self.inimigo_especial
-        )
-
-        self.physics_engine_inimigo_especial = (
-            arcade.PhysicsEnginePlatformer(
-                self.inimigo_especial,
-                platforms=self.sprite_blocos,
-                gravity_constant=1
-            )
         )
 
     def on_draw(self):
@@ -451,6 +425,8 @@ class TelaJogo(arcade.View):
             delta_time
         )
 
+        self.sprite_inimigos_especiais.update()
+
         self.physics_engine.update()
 
         if self.jogador.left < 0:
@@ -477,8 +453,6 @@ class TelaJogo(arcade.View):
         self.inimigo_especial.perseguir_jogador(
             self.jogador
         )
-
-        self.physics_engine_inimigo_especial.update()
 
         if self.tempo_invulnerabilidade > 0:
             self.tempo_invulnerabilidade -= delta_time
@@ -617,7 +591,7 @@ class TelaJogo(arcade.View):
             or key == arcade.key.W
         ):
             if self.physics_engine.can_jump():
-                self.jogador.change_y = 15
+                self.jogador.change_y = 20
 
         elif key == arcade.key.ESCAPE:
             self.window.show_view(
@@ -856,9 +830,6 @@ class TelaGameOver(arcade.View):
         tempo,
         sofreu_dano):
         
-        Pontuacao.select().order_by(
-            Pontuacao.pontos.desc()
-        ).limit(10)
     
         super().__init__()
 
