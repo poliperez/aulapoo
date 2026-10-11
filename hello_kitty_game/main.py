@@ -3,17 +3,22 @@ import random
 import os
 from banco import *
 
-LARGURA = 800
-ALTURA = 600
+LARGURA = 1800
+ALTURA = 800
 TITULO = "Coletor de Moedas"
 
 class Player(arcade.Sprite):
-
     def __init__(self):
+        self.spr_idle = "hk_idle.png"
+        self.spr_idle_r = "hk_idle_r.png"
+        self.spr_jump = "hk_jump.png"
+        self.spr_jump_r = "hk_jump_r.png"
+
         super().__init__(
-            "Hello_Kitty.png",
+            self.spr_idle,
             scale=0.1
         )
+
 
         textura = arcade.load_texture("Hello_Kitty_spritesheat.png")
 
@@ -45,22 +50,22 @@ class Player(arcade.Sprite):
         
         
         self.textura_parado_d = arcade.load_texture(
-            "Hello_Kitty.png"
+            self.spr_idle
         )
 
         
         self.textura_parado_e = arcade.load_texture(
-            "Hello_Kitty_esp.png"
+            self.spr_idle_r
         )
 
         
         self.textura_pulo_d = arcade.load_texture(
-            "Hello_Kitty.png"
+            self.spr_jump
         )
 
         
         self.textura_pulo_e = arcade.load_texture(
-            "Hello_Kitty_esp.png"
+            self.spr_jump_r
         )
 
         
@@ -74,8 +79,6 @@ class Player(arcade.Sprite):
 
    
     def update(self, delta_time: float = 1 / 60):
-
-        
         if self.change_x > 0:
             self.virado_para = "DIREITA"
 
@@ -87,9 +90,6 @@ class Player(arcade.Sprite):
 
    
     def state_machine(self, delta_time):
-
-       
-
         if self.change_y != 0:
             self.jump()
             return
@@ -146,9 +146,7 @@ class Player(arcade.Sprite):
             self.texture = self.textura_pulo_e
 
    
-    def idle(self):
-
-        
+    def idle(self):        
         self.quadro_atual = 0
 
         if self.virado_para == "DIREITA":
@@ -156,8 +154,8 @@ class Player(arcade.Sprite):
             self.texture = self.textura_parado_d
 
         else:
-
             self.texture = self.textura_parado_e
+
 class Moeda(arcade.Sprite):
 
     def __init__(self):
@@ -204,7 +202,7 @@ class Inimigo(arcade.Sprite):
     def __init__(self):
         super().__init__(
             "kuromi.png",
-            scale=0.2
+            scale=0.15
         )
 
         self.change_x = 100
@@ -286,6 +284,8 @@ class TelaJogo(arcade.View):
         self.sprite_inimigos = arcade.SpriteList()
         self.sprite_inimigos_especiais = arcade.SpriteList()
 
+        self.explosion = arcade.Sprite("explosion.png")
+
         self.jogador = Player()
 
         self.jogador.center_x = 400
@@ -311,12 +311,16 @@ class TelaJogo(arcade.View):
             (100, 380),
             (300, 250),
             (500, 180),
-            (700, 320)
+            (700, 320),
+            (900, 380),
+            (1100, 250),
+            (1300, 180),
+            (1500, 320),
         ]
 
         for x, y in plataformas:
             bloco = Bloco(
-                escala=0.28
+                escala=0.3
             )
 
             bloco.center_x = x
@@ -343,6 +347,26 @@ class TelaJogo(arcade.View):
             (700, 290),
             (250, 390),
             (550, 430),
+            (850, 150),
+            (1050, 220),
+            (1250, 130),
+            (1500, 180),
+            (1700, 300),
+            (900, 400),
+            (1100, 250),
+            (1350, 350),
+            (1600, 450),
+            (1750, 200),
+            (150, 450),
+            (400, 350),
+            (650, 150),
+            (850, 480),
+            (1100, 400),
+            (1300, 250),
+            (1500, 350),
+            (1700, 480),
+            (350, 200),
+            (700, 500),
         ]
 
         for x, y in posicoes_moedas:
@@ -395,17 +419,17 @@ class TelaJogo(arcade.View):
         arcade.draw_text(
             f"Moedas Coletadas: {self.pontuacao}",
             10,
-            570,
+            ALTURA - 20,
             arcade.color.WHITE,
-            14
+            20
         )
 
         arcade.draw_text(
             f"Tempo: {self.tempo:.1f}s",
-            650,
-            570,
+            LARGURA - 200,
+            ALTURA - 20,
             arcade.color.WHITE,
-            14
+            20
         )
 
         if self.alerta:
@@ -502,6 +526,13 @@ class TelaJogo(arcade.View):
                     "CUIDADO! Você foi atingido!"
                 )
 
+                self.explosion.center_x = inimigo.center_x
+                self.explosion.center_y = inimigo.center_y
+
+                self.sprite_inimigos.append(
+                    self.explosion
+                )
+
                 self.tempo_alerta = 2
                 self.tempo_invulnerabilidade = 1.5
 
@@ -520,6 +551,12 @@ class TelaJogo(arcade.View):
                 self.sprite_inimigos_especiais
             )
         )
+
+        if self.explosion in self.sprite_inimigos:
+            if self.tempo_invulnerabilidade <= 0:
+                self.explosion.remove_from_sprite_lists()
+            else:
+                self.explosion.scale = 0.1 + 0.05 * (self.tempo_invulnerabilidade) * 8
 
         if (
             inimigos_especiais_colididos
@@ -624,7 +661,7 @@ class TelaSobre(arcade.View):
 
             avatar1 = arcade.Sprite(
                 "melody.png",
-                scale=0.15
+                scale=0.5
             )
 
             avatar1.center_x = 400
