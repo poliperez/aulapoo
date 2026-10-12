@@ -504,12 +504,15 @@ class TelaJogo(arcade.View):
                     "CUIDADO! Você foi atingido!"
                 )
 
-                self.explosion.center_x = inimigo.center_x
-                self.explosion.center_y = inimigo.center_y
+                if self.explosion not in self.sprite_inimigos:
 
-                self.sprite_inimigos.append(
-                    self.explosion
-                )
+                    self.explosion.center_x = inimigo.center_x
+                    self.explosion.center_y = inimigo.center_y
+
+                    
+                    self.sprite_inimigos.append(
+                        self.explosion
+                    )
 
                 self.tempo_alerta = 2
                 self.tempo_invulnerabilidade = 1.5
@@ -847,6 +850,34 @@ class TelaGameOver(arcade.View):
         self.pontuacao = pontuacao
         self.tempo = tempo
         self.sofreu_dano = sofreu_dano
+        self.nome_digitado = ""
+        self.LIMITE_NOME = 12
+    
+    def on_text(self, text):
+        if text.isprintable() and len(self.nome_digitado) < self.LIMITE_NOME:
+            self.nome_digitado += text
+
+
+    def on_key_press(self, key, modifiers):
+
+        if key == arcade.key.BACKSPACE:
+            self.nome_digitado = self.nome_digitado[:-1]
+
+        elif key == arcade.key.ENTER or key == arcade.key.NUM_ENTER:
+            nome = self.nome_digitado.strip()
+
+            if nome:
+                nova = self.salvar_pontuacao(nome)
+                print(f"Pontuação salva: {nova}")
+
+                self.window.show_view(TelaInicial())
+
+        elif key == arcade.key.M:
+            self.window.show_view(TelaInicial())
+
+        elif key == arcade.key.ESCAPE:
+            arcade.close_window()
+
 
     def on_draw(self):
         self.clear()
@@ -917,17 +948,26 @@ class TelaGameOver(arcade.View):
             18,
             anchor_x="center"
         )
+        
+                # Rótulo acima da caixa
+        arcade.draw_text("Digite seu nome para o ranking:", LARGURA / 2, 270,
+                         arcade.color.WHITE, 16, anchor_x="center")
 
-    def on_key_press(self, key, modifiers):
+        # Contorno da caixa: XYWH descreve o retângulo pelo centro e pelas dimensões
+        arcade.draw_rect_outline(arcade.XYWH(LARGURA / 2, 222, 360, 50),
+                                 arcade.color.WHITE, border_width=2)
 
-        if key == arcade.key.M:
-            self.window.show_view(
-                TelaInicial()
-            )
+        # O texto digitado, centralizado dentro da caixa (anchor_y="center")
+        arcade.draw_text(self.nome_digitado + "_", LARGURA / 2, 222,
+                         arcade.color.YELLOW, 22, anchor_x="center", anchor_y="center")
 
-        elif key == arcade.key.ESCAPE:
-            arcade.close_window()
-
+    def salvar_pontuacao(self, nome):
+        return Pontuacao.create(
+            nome_jogador=nome,
+            pontos=self.pontuacao,
+            tempo_partida=self.tempo
+        )
+    
 class TelaInicial(arcade.View):
 
     def __init__(self):
@@ -981,6 +1021,15 @@ class TelaInicial(arcade.View):
             anchor_x="center"
         )
 
+        arcade.draw_text(
+            "[R] Ranking",
+            LARGURA / 2,
+            100,
+            arcade.color.PURPLE,
+            20,
+            anchor_x="center"
+        )
+
     def on_key_press(self, key, modifiers):
 
         if key == arcade.key.J:
@@ -1006,9 +1055,55 @@ class TelaInicial(arcade.View):
             self.window.show_view(
                 tela_sobre
             )
+        elif key == arcade.key.R:
+            tela_ranking = TelaRanking()
+
+            self.window.show_view(
+                tela_ranking
+            )
 
         elif key == arcade.key.ESCAPE:
             arcade.close_window()
+
+class TelaRanking(arcade.View):
+    """Exibe as 10 melhores pontuações salvas no banco de dados."""
+
+    def __init__(self, destaque_id: int = None):
+        super().__init__()
+        # A consulta roda UMA vez, aqui no construtor — nunca no on_draw()
+        self.melhores = buscar_top10()
+        # id da partida que acabou de ser salva (None quando viemos do menu)
+        self.destaque_id = destaque_id
+
+    def on_draw(self):
+        self.clear()
+
+                # Caso especial: banco ainda vazio (o for não executaria nenhuma vez)
+        if len(self.melhores) == 0:
+            arcade.draw_text("Nenhuma pontuação ainda! Seja o primeiro.", LARGURA / 2, 320,
+                             arcade.color.WHITE, 20, anchor_x="center")
+            return
+        
+
+
+        for indice, p in enumerate(self.melhores):
+            if p.id == self.destaque_id:
+                cor = arcade.color.YELLOW
+            else:
+                cor = arcade.color.WHITE
+            # índice 0 → y = 440 | índice 1 → y = 406 | índice 2 → y = 372 ...
+            y = 440 - indice * 34
+            arcade.draw_text(f"{indice + 1}º", 100, y, arcade.color.WHITE, 16)
+            arcade.draw_text(p.nome_jogador, 160, y, arcade.color.WHITE, 16)
+        
+        arcade.draw_text(str(p.pontos), 450, y, cor, 16, anchor_x="right")
+        arcade.draw_text(f"{p.tempo_partida:.1f}s", 560, y, cor, 16, anchor_x="right")
+        # data_hora volta do banco como um objeto datetime: strftime formata como texto
+        arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, cor, 16, anchor_x="right")
+
+
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.DARK_MIDNIGHT_BLUE)
 
 def executar():
 

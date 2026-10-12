@@ -44,5 +44,4 @@ def buscar_top10():
 
     return list(consulta)
 
-
 inicializar_banco()
