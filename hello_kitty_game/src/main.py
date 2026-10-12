@@ -1096,10 +1096,10 @@ class TelaRanking(arcade.View):
             arcade.draw_text(f"{indice + 1}º", 100, y, arcade.color.WHITE, 16)
             arcade.draw_text(p.nome_jogador, 160, y, arcade.color.WHITE, 16)
         
-        arcade.draw_text(str(p.pontos), 450, y, cor, 16, anchor_x="right")
-        arcade.draw_text(f"{p.tempo_partida:.1f}s", 560, y, cor, 16, anchor_x="right")
-        # data_hora volta do banco como um objeto datetime: strftime formata como texto
-        arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, cor, 16, anchor_x="right")
+            arcade.draw_text(str(p.pontos), 450, y, cor, 16, anchor_x="right")
+            arcade.draw_text(f"{p.tempo_partida:.1f}s", 560, y, cor, 16, anchor_x="right")
+            # data_hora volta do banco como um objeto datetime: strftime formata como texto
+            arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, cor, 16, anchor_x="right")
 
 
     def on_show_view(self):
@@ -1123,3 +1123,4 @@ def executar():
 
 if __name__ == "__main__":
     executar()
+ 
