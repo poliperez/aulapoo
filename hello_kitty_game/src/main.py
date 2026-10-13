@@ -634,6 +634,10 @@ class TelaSobre(arcade.View):
 
     def __init__(self):
         super().__init__()
+        
+        arcade.set_background_color(
+            arcade.color.BLACK
+        )
 
         self.sprite_avatares = arcade.SpriteList()
 
@@ -641,10 +645,11 @@ class TelaSobre(arcade.View):
 
             avatar1 = arcade.Sprite(
                 os.path.join(ASSETS_DIR, "melody.png"),
-                scale=0.5
+                scale=0.5,
+        
             )
 
-            avatar1.center_x = 400
+            avatar1.center_x = 900
             avatar1.center_y = 200
 
             self.sprite_avatares.append(
@@ -895,7 +900,7 @@ class TelaGameOver(arcade.View):
             f"Pontuação final: {self.pontuacao}",
             LARGURA / 2,
             340,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             22,
             anchor_x="center"
         )
@@ -904,7 +909,7 @@ class TelaGameOver(arcade.View):
             f"Tempo total: {self.tempo:.1f} segundos",
             LARGURA / 2,
             290,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
@@ -935,7 +940,7 @@ class TelaGameOver(arcade.View):
             "[M] Voltar ao Menu Principal",
             LARGURA / 2,
             140,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             18,
             anchor_x="center"
         )
@@ -944,7 +949,7 @@ class TelaGameOver(arcade.View):
             "[ESC] Sair do Jogo",
             LARGURA / 2,
             90,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             18,
             anchor_x="center"
         )
@@ -959,7 +964,7 @@ class TelaGameOver(arcade.View):
 
         # O texto digitado, centralizado dentro da caixa (anchor_y="center")
         arcade.draw_text(self.nome_digitado + "_", LARGURA / 2, 222,
-                         arcade.color.YELLOW, 22, anchor_x="center", anchor_y="center")
+                         arcade.color.BLACK, 22, anchor_x="center", anchor_y="center")
 
     def salvar_pontuacao(self, nome):
         return Pontuacao.create(
@@ -980,7 +985,7 @@ class TelaInicial(arcade.View):
             "COLETOR DE MOEDAS",
             LARGURA / 2,
             420,
-            arcade.color.PURPLE,
+            arcade.color.PINK,
             32,
             anchor_x="center"
         )
@@ -1025,7 +1030,7 @@ class TelaInicial(arcade.View):
             "[R] Ranking",
             LARGURA / 2,
             100,
-            arcade.color.PURPLE,
+            arcade.color.PINK,
             20,
             anchor_x="center"
         )
@@ -1081,7 +1086,7 @@ class TelaRanking(arcade.View):
                 # Caso especial: banco ainda vazio (o for não executaria nenhuma vez)
         if len(self.melhores) == 0:
             arcade.draw_text("Nenhuma pontuação ainda! Seja o primeiro.", LARGURA / 2, 320,
-                             arcade.color.WHITE, 20, anchor_x="center")
+                             arcade.color.BLACK, 20, anchor_x="center")
             return
         
 
@@ -1093,17 +1098,17 @@ class TelaRanking(arcade.View):
                 cor = arcade.color.WHITE
             # índice 0 → y = 440 | índice 1 → y = 406 | índice 2 → y = 372 ...
             y = 440 - indice * 34
-            arcade.draw_text(f"{indice + 1}º", 100, y, arcade.color.WHITE, 16)
-            arcade.draw_text(p.nome_jogador, 160, y, arcade.color.WHITE, 16)
+            arcade.draw_text(f"{indice + 1}º", 100, y, arcade.color.PURPLE, 16)
+            arcade.draw_text(p.nome_jogador, 160, y, arcade.color.PURPLE, 16)
         
-            arcade.draw_text(str(p.pontos), 450, y, cor, 16, anchor_x="right")
-            arcade.draw_text(f"{p.tempo_partida:.1f}s", 560, y, cor, 16, anchor_x="right")
+            arcade.draw_text(str(p.pontos), 450, y, arcade.color.PURPLE, 16, anchor_x="right")
+            arcade.draw_text(f"{p.tempo_partida:.1f}s", 560, y, arcade.color.PURPLE, 16, anchor_x="right")
             # data_hora volta do banco como um objeto datetime: strftime formata como texto
-            arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, cor, 16, anchor_x="right")
+            arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, arcade.color.PURPLE, 16, anchor_x="right")
 
 
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.DARK_MIDNIGHT_BLUE)
+        arcade.set_background_color(arcade.color.PINK)
 
 def executar():
 
