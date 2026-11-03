@@ -890,7 +890,7 @@ class TelaGameOver(arcade.View):
         arcade.draw_text(
             "FIM DE JOGO!",
             LARGURA / 2,
-            420,
+            720,
             arcade.color.PURPLE,
             40,
             anchor_x="center"
@@ -930,7 +930,7 @@ class TelaGameOver(arcade.View):
             arcade.draw_text(
                 "Parabéns por terminar o jogo!",
                 LARGURA / 2,
-                220,
+                620,
                 arcade.color.PURPLE,
                 18,
                 anchor_x="center"
@@ -1106,6 +1106,13 @@ class TelaRanking(arcade.View):
             # data_hora volta do banco como um objeto datetime: strftime formata como texto
             arcade.draw_text(p.data_hora.strftime("%d/%m/%Y"), 700, y, arcade.color.PURPLE, 16, anchor_x="right")
 
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ESCAPE:
+            tela_jogo = TelaJogo()
+
+            self.window.show_view(
+                tela_jogo
+            )
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PINK)
