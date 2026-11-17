@@ -3,10 +3,8 @@ import random
 import os
 from banco import *
 
-ASSETS_DIR = os.path.join(
-	os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-	"Assets"
-)
+ASSETS_DIR = ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Assets")
+
 
 LARGURA = 1800
 ALTURA = 800
@@ -244,6 +242,9 @@ class TelaJogo(arcade.View):
     def __init__(self):
         super().__init__()
 
+        self.fundo_jogo = arcade.load_texture(
+        os.path.join(ASSETS_DIR, "tela-jogo.png")
+)
         arcade.set_background_color(
             arcade.color.PINK
         )
@@ -279,23 +280,22 @@ class TelaJogo(arcade.View):
             )
 
             bloco.center_x = x
-            bloco.center_y = 25
+            bloco.center_y = 75
 
             self.sprite_blocos.append(
                 bloco
             )
 
         plataformas = [
-            (100, 380),
-            (300, 250),
-            (500, 180),
-            (700, 320),
-            (900, 380),
-            (1100, 250),
-            (1300, 180),
-            (1500, 320),
-        ]
-
+            (100, 455),
+            (300, 325),
+            (500, 255),
+            (700, 395),
+            (900, 455),
+            (1100, 325),
+            (1300, 255),
+            (1500, 395),
+]
         for x, y in plataformas:
             bloco = Bloco(
                 escala=0.3
@@ -315,36 +315,38 @@ class TelaJogo(arcade.View):
         )
 
         posicoes_moedas = [
-            (100, 110),
-            (300, 110),
-            (500, 110),
-            (700, 110),
-            (120, 300),
-            (330, 270),
-            (550, 360),
-            (700, 290),
-            (250, 390),
-            (550, 430),
-            (850, 150),
-            (1050, 220),
-            (1250, 130),
-            (1500, 180),
-            (1700, 300),
-            (900, 400),
-            (1100, 250),
-            (1350, 350),
-            (1600, 450),
-            (1750, 200),
-            (150, 450),
-            (400, 350),
-            (650, 150),
-            (850, 480),
-            (1100, 400),
-            (1300, 250),
-            (1500, 350),
-            (1700, 480),
-            (350, 200),
-            (700, 500),
+            
+            (100, 185),
+            (300, 185),
+            (500, 185),
+            (700, 185),
+            (120, 375),
+            (330, 345),
+            (550, 435),
+            (700, 365),
+            (250, 465),
+            (550, 505),
+            (850, 225),
+            (1050, 295),
+            (1250, 205),
+            (1500, 255),
+            (1700, 375),
+            (900, 475),
+            (1100, 325),
+            (1350, 425),
+            (1600, 525),
+            (1750, 275),
+            (150, 525),
+            (400, 425),
+            (650, 225),
+            (850, 555),
+            (1100, 475),
+            (1300, 325),
+            (1500, 425),
+            (1700, 555),
+            (350, 275),
+            (700, 575),
+
         ]
 
         for x, y in posicoes_moedas:
@@ -369,7 +371,7 @@ class TelaJogo(arcade.View):
         inimigo = Inimigo()
 
         inimigo.center_x = 20
-        inimigo.center_y = 100
+        inimigo.center_y = 175
 
         self.sprite_inimigos.append(
             inimigo
@@ -386,6 +388,12 @@ class TelaJogo(arcade.View):
 
     def on_draw(self):
         self.clear()
+
+        arcade.draw_texture_rect(
+            self.fundo_jogo,
+            arcade.LBWH(0, 0, LARGURA, ALTURA)
+            )
+        
 
         self.sprite_jogador.draw()
         self.sprite_moedas.draw()
@@ -852,6 +860,10 @@ class TelaGameOver(arcade.View):
 
         super().__init__()
 
+        self.fundo_over = arcade.load_texture(
+    os.path.join(ASSETS_DIR, "tela-init.png")
+)
+
         self.pontuacao = pontuacao
         self.tempo = tempo
         self.sofreu_dano = sofreu_dano
@@ -886,11 +898,15 @@ class TelaGameOver(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(
+        self.fundo_over,
+        arcade.LBWH(0, 0, LARGURA, ALTURA)
+    )
 
         arcade.draw_text(
             "FIM DE JOGO!",
             LARGURA / 2,
-            720,
+            620,
             arcade.color.PURPLE,
             40,
             anchor_x="center"
@@ -899,7 +915,7 @@ class TelaGameOver(arcade.View):
         arcade.draw_text(
             f"Pontuação final: {self.pontuacao}",
             LARGURA / 2,
-            340,
+            440,
             arcade.color.PURPLE,
             22,
             anchor_x="center"
@@ -919,7 +935,7 @@ class TelaGameOver(arcade.View):
             arcade.draw_text(
                 "PARABÉNS! Você escapou de todos os inimigos perfeitamente!",
                 LARGURA / 2,
-                220,
+                620,
                 arcade.color.GREEN,
                 18,
                 anchor_x="center"
@@ -930,7 +946,7 @@ class TelaGameOver(arcade.View):
             arcade.draw_text(
                 "Parabéns por terminar o jogo!",
                 LARGURA / 2,
-                620,
+                520,
                 arcade.color.PURPLE,
                 18,
                 anchor_x="center"
@@ -948,7 +964,7 @@ class TelaGameOver(arcade.View):
         arcade.draw_text(
             "[ESC] Sair do Jogo",
             LARGURA / 2,
-            90,
+            100,
             arcade.color.PURPLE,
             18,
             anchor_x="center"
@@ -978,14 +994,23 @@ class TelaInicial(arcade.View):
     def __init__(self):
         super().__init__()
 
+        self.fundo_inicial = arcade.load_texture(
+       os.path.join(ASSETS_DIR, "tela-init.png")
+)
+
     def on_draw(self):
         self.clear()
 
+        arcade.draw_texture_rect(
+        self.fundo_inicial,
+        arcade.LBWH(0, 0, LARGURA, ALTURA)
+    )
+
         arcade.draw_text(
-            "COLETOR DE MOEDAS",
+            "COLETOR DE MOEDAS - TURMA SANRIO",
             LARGURA / 2,
             420,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             32,
             anchor_x="center"
         )
@@ -994,7 +1019,7 @@ class TelaInicial(arcade.View):
             "[J] Jogar",
             LARGURA / 2,
             320,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
@@ -1003,7 +1028,7 @@ class TelaInicial(arcade.View):
             "[I] Instruções",
             LARGURA / 2,
             270,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
@@ -1012,7 +1037,7 @@ class TelaInicial(arcade.View):
             "[S] Sobre o Jogo",
             LARGURA / 2,
             220,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
@@ -1021,7 +1046,7 @@ class TelaInicial(arcade.View):
             "[ESC] Sair",
             LARGURA / 2,
             170,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
@@ -1030,7 +1055,7 @@ class TelaInicial(arcade.View):
             "[R] Ranking",
             LARGURA / 2,
             100,
-            arcade.color.PINK,
+            arcade.color.PURPLE,
             20,
             anchor_x="center"
         )
